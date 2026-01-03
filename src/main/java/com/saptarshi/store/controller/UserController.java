@@ -1,5 +1,6 @@
 package com.saptarshi.store.controller;
 
+import com.saptarshi.store.dto.ChangePasswordRequest;
 import com.saptarshi.store.dto.UpdateUserRequest;
 import com.saptarshi.store.dto.UserDto;
 import com.saptarshi.store.dto.UserRegisterReqiest;
@@ -79,5 +80,23 @@ public class UserController {
             return ResponseEntity.notFound().build();
         userRepository.delete(user);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/change-password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Long id,
+            @RequestBody ChangePasswordRequest request
+            )
+    {
+        var user = userRepository.findById(id).orElse(null);
+        if(user==null)
+            return ResponseEntity.notFound().build();
+        if(user.getPassword().equals(request.getOldPassword())) {
+            user.setPassword(request.getNewPassword());
+            userRepository.save(user);
+            return ResponseEntity.ok().build();
+        }
+//        return ResponseEntity.status(403).build();
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }

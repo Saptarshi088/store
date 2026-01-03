@@ -1,5 +1,6 @@
 package com.saptarshi.store.mappers;
 
+import com.saptarshi.store.dto.ChangePasswordRequest;
 import com.saptarshi.store.dto.UpdateUserRequest;
 import com.saptarshi.store.dto.UserDto;
 import com.saptarshi.store.dto.UserRegisterReqiest;

@@ -7,38 +7,44 @@ import com.saptarshi.store.dto.UserRegisterReqiest;
 import com.saptarshi.store.entities.User;
 import com.saptarshi.store.mappers.UserMapper;
 import com.saptarshi.store.repositories.UserRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/users")
+@SuppressWarnings("unused")
 public class UserController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+
     @GetMapping
-    public List < UserDto > getAllUsers(@RequestParam(required = false, defaultValue = "name", name = "sort") String sort) {
+    public List<UserDto> getAllUsers(@RequestParam(required = false, defaultValue = "name", name = "sort") String sort) {
         if (!Set.of("name", "email").contains(sort)) {
             sort = "name";
         }
-        return userRepository.findAll(Sort.by(sort).ascending() )
+        return userRepository.findAll(Sort.by(sort).ascending())
                 .stream()
                 .map(userMapper::toDto)
                 .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity < UserDto > getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
-            return new ResponseEntity < > (HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         //        return new ResponseEntity<>(user,HttpStatus.OK);
@@ -46,8 +52,8 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity < UserDto > createUser(
-            @RequestBody UserRegisterReqiest request,
+    public ResponseEntity<UserDto> createUser(
+            @Valid @RequestBody UserRegisterReqiest request,
             UriComponentsBuilder uriBuilder
     ) {
         var user = userMapper.toUser(request);
@@ -61,22 +67,22 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> update(@PathVariable(name = "id") Long id,
-                                    @RequestBody UpdateUserRequest update){
+                                          @RequestBody UpdateUserRequest update) {
 
         var user = userRepository.findById(id).orElse(null);
-        if(user==null){
+        if (user == null) {
             return ResponseEntity.notFound().build();
         }
-        userMapper.toUpdate(update,user);
+        userMapper.toUpdate(update, user);
         userRepository.save(user);
         return ResponseEntity.ok(userMapper.toDto(user));
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         var user = userRepository.findById(id).orElse(null);
-        if(user==null)
+        if (user == null)
             return ResponseEntity.notFound().build();
         userRepository.delete(user);
         return ResponseEntity.ok().build();
@@ -86,17 +92,29 @@ public class UserController {
     public ResponseEntity<Void> changePassword(
             @PathVariable Long id,
             @RequestBody ChangePasswordRequest request
-            )
-    {
+    ) {
         var user = userRepository.findById(id).orElse(null);
-        if(user==null)
+        if (user == null)
             return ResponseEntity.notFound().build();
-        if(user.getPassword().equals(request.getOldPassword())) {
+        if (user.getPassword().equals(request.getOldPassword())) {
             user.setPassword(request.getNewPassword());
             userRepository.save(user);
             return ResponseEntity.ok().build();
         }
 //        return ResponseEntity.status(403).build();
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidatorsErrors(MethodArgumentNotValidException exception) {
+
+        Map<String, String> errors = new HashMap<>();
+        exception.getBindingResult().getFieldErrors().forEach(error ->
+                {
+                    errors.put(error.getField(), error.getDefaultMessage());
+                }
+        );
+
+        return ResponseEntity.badRequest().body(errors);
     }
 }

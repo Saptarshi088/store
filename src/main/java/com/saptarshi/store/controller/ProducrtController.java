@@ -18,6 +18,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/products")
 @AllArgsConstructor
+@SuppressWarnings("unused")
 public class ProducrtController {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -38,9 +39,9 @@ public class ProducrtController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id){
+    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
         Product product = productRepository.findById(id).orElse(null);
-        if(product!=null){
+        if (product != null) {
             return ResponseEntity.ok(productMapper.toDto(product));
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -67,9 +68,9 @@ public class ProducrtController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id){
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         var product = productRepository.findById(id).orElse(null);
-        if(product==null)
+        if (product == null)
             return ResponseEntity.badRequest().build();
         productRepository.delete(product);
         return ResponseEntity.ok().build();

@@ -1,7 +1,6 @@
 package com.saptarshi.store.dto;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -105,16 +105,4 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidatorsErrors(MethodArgumentNotValidException exception) {
-
-        Map<String, String> errors = new HashMap<>();
-        exception.getBindingResult().getFieldErrors().forEach(error ->
-                {
-                    errors.put(error.getField(), error.getDefaultMessage());
-                }
-        );
-
-        return ResponseEntity.badRequest().body(errors);
-    }
 }

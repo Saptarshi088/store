@@ -61,7 +61,7 @@ public class CartController {
             cartItem.setProduct(product);
             cartItem.setQuantity(1);
             cartItem.setCart(cart);
-            cart.getCartItems().add(cartItem); // 4. Removed duplicate add
+            cart.getCartItems().add(cartItem);
         }
 
         cartRepository.save(cart);

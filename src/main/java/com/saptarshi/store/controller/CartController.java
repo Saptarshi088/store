@@ -66,7 +66,6 @@ public class CartController {
 
         cartRepository.save(cart);
 
-        // 5. Return the DTO
         var cartItemDto = cartMapper.toDto(cartItem.getCart());
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItemDto);
     }

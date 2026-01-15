@@ -70,7 +70,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> update(@PathVariable(name = "id") Long id,
-                                          @RequestBody UpdateUserRequest update) {
+                                          @Valid @RequestBody UpdateUserRequest update) {
 
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
@@ -94,13 +94,14 @@ public class UserController {
     @PostMapping("/{id}/change-password")
     public ResponseEntity<Void> changePassword(
             @PathVariable Long id,
-            @RequestBody ChangePasswordRequest request
+            @Valid @RequestBody ChangePasswordRequest request
     ) {
         var user = userRepository.findById(id).orElse(null);
         if (user == null)
             return ResponseEntity.notFound().build();
-        if (user.getPassword().equals(request.getOldPassword())) {
-            user.setPassword(request.getNewPassword());
+
+        if (passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
             userRepository.save(user);
             return ResponseEntity.ok().build();
         }

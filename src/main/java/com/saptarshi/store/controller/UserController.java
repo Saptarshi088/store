@@ -1,9 +1,6 @@
 package com.saptarshi.store.controller;
 
-import com.saptarshi.store.dto.ChangePasswordRequest;
-import com.saptarshi.store.dto.UpdateUserRequest;
-import com.saptarshi.store.dto.UserDto;
-import com.saptarshi.store.dto.UserRegisterReqiest;
+import com.saptarshi.store.dto.*;
 import com.saptarshi.store.entities.User;
 import com.saptarshi.store.mappers.UserMapper;
 import com.saptarshi.store.repositories.UserRepository;
@@ -12,11 +9,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +24,7 @@ import java.util.Set;
 public class UserController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public List<UserDto> getAllUsers(@RequestParam(required = false, defaultValue = "name", name = "sort") String sort) {
@@ -62,6 +59,7 @@ public class UserController {
             );
         }
         var user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
 
         var userDto = userMapper.toDto(user);
@@ -109,5 +107,6 @@ public class UserController {
 //        return ResponseEntity.status(403).build();
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
+
 
 }

@@ -1,5 +1,6 @@
 package com.saptarshi.store.config;
 
+import com.saptarshi.store.filters.JwtAuthenticationFIlter;
 import com.saptarshi.store.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +27,7 @@ public class SecurityConfig {
 
 
     private final UserService userService;
+    private final JwtAuthenticationFIlter jwtAuthenticationFIlter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
@@ -35,8 +38,10 @@ public class SecurityConfig {
                         .requestMatchers("/carts/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users", "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/validate").permitAll()
+                        .requestMatchers("/hello").permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .addFilterAfter(jwtAuthenticationFIlter, UsernamePasswordAuthenticationFilter.class);
         http.httpBasic(Customizer.withDefaults());
 
         return http.build();

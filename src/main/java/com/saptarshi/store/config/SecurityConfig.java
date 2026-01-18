@@ -41,8 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/hello").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterAfter(jwtAuthenticationFIlter, UsernamePasswordAuthenticationFilter.class);
-        http.httpBasic(Customizer.withDefaults());
+                .addFilterBefore(jwtAuthenticationFIlter, UsernamePasswordAuthenticationFilter.class);
+        http.httpBasic(AbstractHttpConfigurer::disable);
 
         return http.build();
     }

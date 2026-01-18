@@ -24,7 +24,7 @@ public class UserService implements UserDetailsService {
         var user = userRepository.findByEmail(email).orElseThrow();
 
         return new User(
-                user.getName(),
+                user.getEmail(),
                 user.getPassword(),
                 Collections.emptyList()
         );

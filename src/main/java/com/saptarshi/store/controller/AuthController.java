@@ -6,6 +6,9 @@ import com.saptarshi.store.dto.UserLogInRequest;
 import com.saptarshi.store.mappers.UserMapper;
 import com.saptarshi.store.repositories.UserRepository;
 import com.saptarshi.store.service.JwtService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +27,10 @@ public class AuthController {
     private final UserMapper userMapper;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> userLogIn(@RequestBody UserLogInRequest request) {
+    public ResponseEntity<JwtResponse> userLogIn(
+            @RequestBody UserLogInRequest request,
+            HttpServletResponse response
+    ) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -33,8 +39,18 @@ public class AuthController {
 
         var user = userRepository.getUserByEmail(request.getEmail()).orElseThrow();
 
-        var token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new JwtResponse(token));
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+
+        var cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/auth/refresh");
+        cookie.setSecure(true);
+        cookie.setMaxAge(604800);
+
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(new JwtResponse(accessToken));
     }
 
     @PostMapping("/validate")

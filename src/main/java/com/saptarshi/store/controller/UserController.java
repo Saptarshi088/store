@@ -1,6 +1,7 @@
 package com.saptarshi.store.controller;
 
 import com.saptarshi.store.dto.*;
+import com.saptarshi.store.entities.Role;
 import com.saptarshi.store.entities.User;
 import com.saptarshi.store.mappers.UserMapper;
 import com.saptarshi.store.repositories.UserRepository;
@@ -60,6 +61,7 @@ public class UserController {
         }
         var user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
         userRepository.save(user);
 
         var userDto = userMapper.toDto(user);

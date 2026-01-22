@@ -1,5 +1,6 @@
 package com.saptarshi.store.config;
 
+import com.saptarshi.store.entities.Role;
 import com.saptarshi.store.filters.JwtAuthenticationFIlter;
 import com.saptarshi.store.service.UserService;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/carts/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/users", "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/validate").permitAll()
                         .requestMatchers("/hello").permitAll()
@@ -46,9 +48,14 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFIlter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(e-> e.authenticationEntryPoint(
-                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                );
+                .exceptionHandling(e -> {
+                    e.authenticationEntryPoint(
+                            new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+                    );
+                    e.accessDeniedHandler((request, response, accessDeniedException) ->
+                            response.setStatus(HttpStatus.FORBIDDEN.value())
+                    );
+                });
         http.httpBasic(AbstractHttpConfigurer::disable);
 
         return http.build();

@@ -1,5 +1,6 @@
 package com.saptarshi.store.service;
 
+import com.saptarshi.store.entities.Role;
 import com.saptarshi.store.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -42,6 +43,10 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
+    }
+
+    public Role getRoleFromToken(String token){
+        return Role.valueOf(getClaims(token).get("role",String.class));
     }
 
     public Boolean validateToken(String token) {

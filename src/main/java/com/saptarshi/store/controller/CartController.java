@@ -49,7 +49,7 @@ public class CartController {
         if (product == null)
             return ResponseEntity.badRequest().build(); // 3. Changed to Bad Request
 
-        var cartItem = cart.getCartItems().stream()
+        var cartItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
                 .findFirst()
                 .orElse(null);
@@ -61,7 +61,7 @@ public class CartController {
             cartItem.setProduct(product);
             cartItem.setQuantity(1);
             cartItem.setCart(cart);
-            cart.getCartItems().add(cartItem);
+            cart.getItems().add(cartItem);
         }
 
         cartRepository.save(cart);

@@ -2,6 +2,7 @@ package com.saptarshi.store.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,6 +14,13 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @ControllerAdvice
 public class GlobalExceptionHandeler {
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String,String>> handleException(Exception exception){
+        return ResponseEntity.badRequest().body(
+                Map.of("error","Invalid Request Body")
+        );
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidatorsErrors(MethodArgumentNotValidException exception) {
